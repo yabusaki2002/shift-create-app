@@ -90,29 +90,42 @@
           });
           document.getElementById('outputBox').value = output;
       }
-      function generateTable() {
-            const startDate = new Date(document.getElementById('startDate').value);
-            const endDate = new Date(document.getElementById('endDate').value);
-            const tableBody = document.getElementById('tableBody');
 
-            let dateIterator = new Date(startDate);
-            let tableHTML = '';
-            while (dateIterator <= endDate) {
-                const formattedDate = `${dateIterator.getMonth() + 1}/${dateIterator.getDate()}`;
-                tableHTML += `
-                <tr>
-                    <td class="p-2 border">${formattedDate}</td>
-                    <td class="p-2 border">
-                        <button data-date="${formattedDate}" data-action="attend" onclick="setAttendance('${formattedDate}')"
-                            class="mr-2 px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50">出勤する</button>
-                        <button data-date="${formattedDate}" data-action="absent" onclick="setAbsence('${formattedDate}')"
-                            class="px-4 py-1 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-opacity-50">出勤しない</button>
-                    </td>
-                </tr>`;
-                dateIterator.setDate(dateIterator.getDate() + 1);
-            }
-            tableBody.innerHTML = tableHTML;
-        }
+
+      function generateTable() {
+    const startDate = new Date(document.getElementById('startDate').value);
+    const endDate = new Date(document.getElementById('endDate').value);
+    const tableBody = document.getElementById('tableBody');
+
+    let dateIterator = new Date(startDate);
+    let tableHTML = '';
+
+    // dates 配列と statusMap をリセットします
+    dates.length = 0;
+    for (let key in statusMap) {
+        delete statusMap[key];
+    }
+
+    while (dateIterator <= endDate) {
+        const formattedDate = `${dateIterator.getMonth() + 1}/${dateIterator.getDate()}`;
+
+        // dates 配列を動的に更新
+        dates.push(formattedDate);
+
+        tableHTML += `
+            <tr>
+                <td class="p-2 border">${formattedDate}</td>
+                <td class="p-2 border">
+                    <button data-date="${formattedDate}" data-action="attend" onclick="setAttendance('${formattedDate}')"
+                        class="mr-2 px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50">出勤する</button>
+                    <button data-date="${formattedDate}" data-action="absent" onclick="setAbsence('${formattedDate}')"
+                        class="px-4 py-1 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-opacity-50">出勤しない</button>
+                </td>
+            </tr>`;
+        dateIterator.setDate(dateIterator.getDate() + 1);
+    }
+    tableBody.innerHTML = tableHTML;
+}
   </script>
 
 </body>
