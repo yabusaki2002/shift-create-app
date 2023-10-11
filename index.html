@@ -52,7 +52,7 @@
       const statusMap = {};
 
       function setAttendance(date) {
-          statusMap[date] = "◯";
+          statusMap[date] = " ◯";
 
           // 「出勤しない」ボタンの色を薄くし、透明度を設定
           const absentBtn = document.querySelector(`[data-date='${date}'][data-action='absent']`);
@@ -68,7 +68,7 @@
       }
 
       function setAbsence(date) {
-          statusMap[date] = "×";
+          statusMap[date] = " ×";
 
           // 「出勤する」ボタンの色を薄くし、透明度を設定
           const attendBtn = document.querySelector(`[data-date='${date}'][data-action='attend']`);
