@@ -1,134 +1,167 @@
 <!DOCTYPE html>
 <html lang="ja">
-
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>出勤日カレンダー</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.15/dist/tailwind.min.css" rel="stylesheet">
-</head>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.15/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
 
-<body class="bg-gray-100 py-10">
-  <div class="container mx-auto px-4 text-center mb-8">
-    <h1 class="text-2xl font-bold">シフト作成</h1>
-</div>
+  <body class="bg-gray-100 py-10">
+    <div class="container mx-auto px-4 text-center mb-8">
+      <h1 class="text-2xl font-bold">シフト作成</h1>
+    </div>
     <div class="container mx-auto px-4 md:flex">
+      <textarea
+        id="outputBox"
+        rows="10"
+        class="flex-none w-full md:w-1/3 p-4 mb-6 md:mb-0 md:mr-6 border rounded-md shadow-sm"
+      ></textarea>
 
-        <textarea id="outputBox" rows="10" class="flex-none w-full md:w-1/3 p-4 mb-6 md:mb-0 md:mr-6 border rounded-md shadow-sm"></textarea>
+      <div class="flex-grow w-full">
+        <div class="mb-6 flex flex-wrap justify-between">
+          <div class="flex">
+            <label for="startDate" class="mr-2">開始日:</label>
+            <input
+              type="date"
+              id="startDate"
+              class="border rounded-md p-1 mb-2 md:mb-0 mr-4"
+            />
+          </div>
+          <div class="flex">
+            <label for="endDate" class="mr-2">終了日:</label>
+            <input
+              type="date"
+              id="endDate"
+              class="border rounded-md p-1 mb-2 md:mb-0"
+            />
+          </div>
+          <button
+            onclick="generateTable()"
+            class="ml-4 px-4 py-1 bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50"
+          >
+            日付範囲を適用
+          </button>
+        </div>
 
-        <div class="flex-grow w-full">
-
-            <div class="mb-6 flex flex-wrap justify-between">
-                <div class="flex">
-                    <label for="startDate" class="mr-2">開始日:</label>
-                    <input type="date" id="startDate" class="border rounded-md p-1 mb-2 md:mb-0 mr-4">
-                </div>
-                <div class="flex">
-                    <label for="endDate" class="mr-2">終了日:</label>
-                    <input type="date" id="endDate" class="border rounded-md p-1 mb-2 md:mb-0">
-                </div>
-                <button onclick="generateTable()" class="ml-4 px-4 py-1 bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50">日付範囲を適用</button>
-            </div>
-
-            <table class="min-w-full bg-white border border-gray-300">
-                <thead>
-                    <tr>
-                        <th class="p-2 border">日付</th>
-                        <th class="p-2 border">出勤状態</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                  <!-- 日付範囲の行はこちらに動的に生成されます -->
-              </tbody>
-          </table>
+        <table class="min-w-full bg-white border border-gray-300">
+          <thead>
+            <tr>
+              <th class="p-2 border">日付</th>
+              <th class="p-2 border">出勤状態</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <!-- 日付範囲の行はこちらに動的に生成されます -->
+          </tbody>
+        </table>
       </div>
-  </div>
+    </div>
 
     <script>
       const dates = [
-          '10/11', '10/12', '10/13', '10/14', '10/15',
-          '10/16', '10/17', '10/18', '10/19', '10/20'
+        "10/11",
+        "10/12",
+        "10/13",
+        "10/14",
+        "10/15",
+        "10/16",
+        "10/17",
+        "10/18",
+        "10/19",
+        "10/20",
       ];
       const statusMap = {};
 
       function setAttendance(date) {
-          statusMap[date] = " ◯";
+        statusMap[date] = "◯";
 
-          // 「出勤しない」ボタンの色を薄くし、透明度を設定
-          const absentBtn = document.querySelector(`[data-date='${date}'][data-action='absent']`);
-          absentBtn.classList.add('bg-red-500', 'opacity-50');
-          absentBtn.classList.remove('hover:bg-red-600');
+        // 「出勤しない」ボタンの色を薄くし、透明度を設定
+        const absentBtn = document.querySelector(
+          `[data-date='${date}'][data-action='absent']`
+        );
+        absentBtn.classList.add("bg-red-500", "opacity-50");
+        absentBtn.classList.remove("hover:bg-red-600");
 
-          // 「出勤する」ボタンはそのままの色を保持
-          const attendBtn = document.querySelector(`[data-date='${date}'][data-action='attend']`);
-          attendBtn.classList.remove('opacity-50');
-          attendBtn.classList.add('hover:bg-blue-600');
+        // 「出勤する」ボタンはそのままの色を保持
+        const attendBtn = document.querySelector(
+          `[data-date='${date}'][data-action='attend']`
+        );
+        attendBtn.classList.remove("opacity-50");
+        attendBtn.classList.add("hover:bg-blue-600");
 
-          updateOutput();
+        updateOutput();
       }
 
       function setAbsence(date) {
-          statusMap[date] = " ×";
+        statusMap[date] = "×";
 
-          // 「出勤する」ボタンの色を薄くし、透明度を設定
-          const attendBtn = document.querySelector(`[data-date='${date}'][data-action='attend']`);
-          attendBtn.classList.add('bg-blue-500', 'opacity-50');
-          attendBtn.classList.remove('hover:bg-blue-600');
+        // 「出勤する」ボタンの色を薄くし、透明度を設定
+        const attendBtn = document.querySelector(
+          `[data-date='${date}'][data-action='attend']`
+        );
+        attendBtn.classList.add("bg-blue-500", "opacity-50");
+        attendBtn.classList.remove("hover:bg-blue-600");
 
-          // 「出勤しない」ボタンはそのままの色を保持
-          const absentBtn = document.querySelector(`[data-date='${date}'][data-action='absent']`);
-          absentBtn.classList.remove('opacity-50');
-          absentBtn.classList.add('hover:bg-red-600');
+        // 「出勤しない」ボタンはそのままの色を保持
+        const absentBtn = document.querySelector(
+          `[data-date='${date}'][data-action='absent']`
+        );
+        absentBtn.classList.remove("opacity-50");
+        absentBtn.classList.add("hover:bg-red-600");
 
-          updateOutput();
+        updateOutput();
       }
 
       function updateOutput() {
-          let output = "";
-          dates.forEach(date => {
-              output += `${date}${statusMap[date] || ' '} \n`;
-          });
-          document.getElementById('outputBox').value = output;
+        let output = "";
+        dates.forEach((date) => {
+          output += `${date}${statusMap[date] || " "} \n`;
+        });
+        document.getElementById("outputBox").value = output;
       }
 
 
-      function generateTable() {
-    const startDate = new Date(document.getElementById('startDate').value);
-    const endDate = new Date(document.getElementById('endDate').value);
-    const tableBody = document.getElementById('tableBody');
+  function generateTable() {
+      const startDate = new Date(document.getElementById('startDate').value);
+      const endDate = new Date(document.getElementById('endDate').value);
+      const tableBody = document.getElementById('tableBody');
 
-    let dateIterator = new Date(startDate);
-    let tableHTML = '';
+      let dateIterator = new Date(startDate);
+      let tableHTML = '';
 
-    // dates 配列と statusMap をリセットします
-    dates.length = 0;
-    for (let key in statusMap) {
-        delete statusMap[key];
-    }
+      // dates 配列と statusMap をリセットします
+      dates.length = 0;
+      for (let key in statusMap) {
+          delete statusMap[key];
+      }
 
-    while (dateIterator <= endDate) {
-        const formattedDate = `${dateIterator.getMonth() + 1}/${dateIterator.getDate()}`;
+      const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
 
-        // dates 配列を動的に更新
-        dates.push(formattedDate);
+      while (dateIterator <= endDate) {
+          const dayOfWeek = weekDays[dateIterator.getDay()];
+          const formattedDate = `${dateIterator.getMonth() + 1}/${dateIterator.getDate()} (${dayOfWeek})`;
 
-        tableHTML += `
-            <tr>
-                <td class="p-2 border">${formattedDate}</td>
-                <td class="p-2 border">
-                    <button data-date="${formattedDate}" data-action="attend" onclick="setAttendance('${formattedDate}')"
-                        class="mr-2 px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50">出勤する</button>
-                    <button data-date="${formattedDate}" data-action="absent" onclick="setAbsence('${formattedDate}')"
-                        class="px-4 py-1 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-opacity-50">出勤しない</button>
-                </td>
-            </tr>`;
-        dateIterator.setDate(dateIterator.getDate() + 1);
-    }
-    tableBody.innerHTML = tableHTML;
-}
-  </script>
+          // dates 配列を動的に更新
+          dates.push(formattedDate);
 
-</body>
-
+          tableHTML += `
+              <tr>
+                  <td class="p-2 border">${formattedDate}</td>
+                  <td class="p-2 border">
+                      <button data-date="${formattedDate}" data-action="attend" onclick="setAttendance('${formattedDate}')"
+                          class="mr-2 px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50">出勤する</button>
+                      <button data-date="${formattedDate}" data-action="absent" onclick="setAbsence('${formattedDate}')"
+                          class="px-4 py-1 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-opacity-50">出勤しない</button>
+                  </td>
+              </tr>`;
+          dateIterator.setDate(dateIterator.getDate() + 1);
+      }
+      tableBody.innerHTML = tableHTML;
+  }
+    </script>
+  </body>
 </html>
-
